@@ -5,18 +5,15 @@
 
 % 插入常规居中图片
 % 参数1：标准栏宽度的倍数 参数2：图片路径 参数3：图片脚注
-\def\pic_normal#1#2#3{
-\begin{figure}[H]
-\centering
-\includegraphics[width=#1\columnwidth]{#2}
-\caption{\small{#3}}
-\end{figure}
-}
 
-% 下划线加加粗
-\newcommand{\important}[1]{\uline{\textbf{#1}}}
 
 \usepackage{ctex}
+% 此包用于目录跳转
+\usepackage[colorlinks,linkcolor=black]{hyperref}
+% 获取最后一页
+\usepackage{lastpage}
+% 此包用于设置页眉页脚
+\usepackage{fancyhdr}
 % 设置列表数字类型
 \usepackage{enumerate}
 % 此包用于长表格换页
@@ -28,7 +25,7 @@
 % 公式中可使用的便捷命令
 \usepackage{amsmath}
 % 中文下划线相关
-\usepackage{CJKulem}
+% \usepackage{CJKulem}
 % 此包用于控制表格颜色
 \usepackage[table]{xcolor}
 % 定义代码中使用的颜色
@@ -40,12 +37,27 @@
 \usepackage{ulem}
 % 此包用于设置页边距
 \usepackage{geometry}
+% 换行符
+\usepackage{soul}
 % 此包用于设置插入图片
 \usepackage{graphicx}
 % 此包用于设置图片浮动
 \usepackage{float}
 
+% 下划线加加粗
+\newcommand{\important}[1]{\uline{\textbf{#1}}}
 \linespread{2}
+
+% 图片和图片说明距离
+\setlength{\abovecaptionskip}{0cm}
+
+\def\pic_normal#1#2#3{
+\begin{figure}[H]
+\centering
+\includegraphics[width=#1\columnwidth]{#2}
+\caption{\small{#3}}
+\end{figure}
+}
 \begin{document}
 
 \lstset {
@@ -71,6 +83,8 @@
     classoffset=0,
 }
 
+% 设置页脚
+\fancyfoot[C]{第\thepage 页 共\pageref{LastPage}页}
 %封面
 \begin{titlepage}
  \newgeometry{left=3cm, top=8cm, right=3cm}
@@ -78,10 +92,12 @@
    \textbf{\zihao{1}2022年全国大学生信息安全竞赛作品报告}\\
  \end{center}
    \vspace{4cm}
+   \begin{center}
    \textbf{作品名称：}
    \uline{“透镜”——基于Libbpf的鸿蒙OS平台隐私监测防护系统}\\
-   \textbf{电子邮箱：} \uline{~~~~~~~~~~~~~~~gyz2019@whu.edu.cn~~~~~~~~~~~~~~~}\\
-   \textbf{提交日期：} \uline{~~~~~~~~~~~~~~2022年6月5日~~~~~~~~~~~~~~~~~~~~~~~}
+   \textbf{电子邮箱：} \uline{~~~~~~~~~~~~~~~~~~~~~~~~~gyz2019@whu.edu.cn~~~~~~~~~~~~~~~~~~~~~~~~~}\\
+   \textbf{~~提交日期：} \uline{~~~~~~~~~~~~~~~~~~~~~~~~~~2022年6月5日~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+   \end{center}
 
 
 \end{titlepage}
@@ -92,6 +108,55 @@
 \tableofcontents
 \newpage
 
+\begin{abstract}
+移动智能终端和移动互联网的发展已经使人们的日常生活发生了极大的变革。之前需要在多个设备上才能完成的工作，如即时通信、浏览网页、拍照、购物、支付等，现在全都可以通过以智能手机为代表的智能手持设备完成。而这种功能的集成化使得仅在一台智能手机中就产生和存储了大量的用户隐私信息。
+
+在多种智能操作系统中，鸿蒙系统的出现标志着我国技术的飞速发展。鸿蒙基于微内核的面向全场景的分布式操作系统，同时满足全场景流畅体验、架构级可信安全、跨终端无缝协同以及一次开发多端部署的要求。然而由于鸿蒙系统刚刚出现，它的很多模块并不完善，特别是安全模块，可以说是一个空白的区域，因此恶意应用可以窃取用户的敏感信息、使用用户的隐私设备、将用户的敏感信息泄露给第三方。\par
+对于上述隐私威胁，目前国内并没有针对性的研究，对于鸿蒙内核的架构也没有非常完善的分析。\par
+本作品首先立足于OpenHarmony系统，搭建了一个以ArkUI为前端界面、以NAPI为接口的系统级应用监测框架；之后在该框架中基于Libbpf技术，构建了一个能够与LiteOS内核进行交互的具有高拓展性与可移植性的Hook模型，从而实现对硬件设备、网络流量、数据信息等多种应用隐私行为的实时监测；同时，本作品凭借Sidercar模式与Libbpf结合后的优越性能，在客户端与服务端之间传递获取到的轻量级数据，并利用数据在服务端用改进后的FNN模型对应用行为进行分析，最终构建了一个完善的弹性防护机制，能够根据用户的自定义选择对应用进行全方位、自适应的安全性管控，能够在多内核版本、多平台运行。
+
+使用ebpf技术进行系统监测有以下优势：
+
+\begin{enumerate}[(1)]
+\item 速度和性能。 eBPF 可以将数据包处理这项工作从内核空间转移到用户空间。同时，eBPF 还支持即时 (JIT) 编译器。在字节码被（JIT）编译完成后，会直接调用 eBPF，而不是对每个方法的字节码进行新的解释。
+
+\item 低侵入性。 当作为调试器时，eBPF 不需要停止程序来观察其状态。
+
+\item 安全。 程序被有效地沙箱化了，这意味着内核源代码仍然受到保护并保持不变。eBPF程序的验证步骤确保资源不会被运行无限循环的程序阻塞。
+
+\item 方便。 创建hook内核函数的代码比构建和维护内核模块的工作要少。
+
+\item 可编程性。 使用 eBPF 有助于在不添加额外层的情况下增加环境的功能丰富性。由于代码直接在内核中运行，因此可以在 eBPF 事件之间存储数据，而不是像其他跟踪器那样转储数据。
+
+\item 统一追踪。 eBPF 为我们提供了一个单一、强大且易于访问的流程跟踪框架，这增加了可见性和安全性。
+\end{enumerate}
+
+本作品的创新性主要体现在以下方面：
+
+\begin{enumerate}[(1)]
+\item 本作品是建立于鸿蒙OS——OpenHarmony上的，该系统为国产自研Linux内核系统，近几年才兴起火热。对于该系统的底层的隐私监测系统，此前未有研究人员在此方向尝试，尽管其它系统平台有不少成熟的应用，但都不能简单地移植过来，不具备兼容性与可行性。
+
+\item 本作品使用的libbpf相较于传统的BCC有着非常突出的优势，包括内存占用少、编译更加方便快速，实现了轻量级的目标。
+
+\item 本作品的应用框架具有可拓展性，其不仅仅局限于我们当前实现了的隐私行为监测，之后还可以进行拓展扩充，通过在已有框架中添加模块的方式，监测其它诸如应用安装、后台权限等等更多的应用程序行为，从而实现更全面的安全性覆盖。
+
+\end{enumerate}\par
+本作品的实用性主要体现在以下方面：
+
+\begin{enumerate}[(1)]
+\item 本作品具有良好的可移植性，构造了一个通用的隐私监测模型。可以用于多种以Linux作为内核的系统的底层框架，在上层只需要做一定的适配工作即可轻松监控对系统中各种硬件设备的使用情况。
+
+\item 本作品在保障用户隐私的同时占用较少的资源。在底层实现中，依靠对系统指令级别的插桩点进行监控，比起在应用层的监控，其占用资源更少；在前端开发中，使用了基于拓展TS的声明式开发范式，无需JS Framework进行页面DOM管理，渲染更新链路更为精简，占用内存更少。
+
+\item 监测效果好，可为用户提供可靠的隐私保护。本作品的核心监测工作在内核层实现，因此可以保证较高的拦截率，监测效果好，可为用户提供可靠的隐私保护。
+
+\item 可拓展性好，有丰富的应用场景和广阔的应用前景。本作品除了可以用于监控OpenHarmony系统中的设备，同时还可以结合OpenHarmony万物互联的特性，监控对同一网络下其他设备的使用。
+\end{enumerate}\par
+本次作品设计实现了一个名为“透镜”的内核级系统隐私行为监测与防护应用。“透镜”能够帮助用户监测并控制其他应用对系统进行隐私行为的调用。性能测试表明，“透镜”可以实现精准的监测防护，并且带来的性能开销在用户可接受的范围内。\par
+\textbf{Keywords: }OpenHarmony，eBPF，系统检测
+
+\end{abstract}
+\newpage
 \section{作品概述}
 \subsection{背景分析}
 从1983年GNU计划开始，过去四十年时间全球范围内仅仅有Unix和Linux两个真正建立起生态体系的操作系统。OpenHarmony承载使能千行百业的数字底座使命，站在巨人肩膀上奋力前行。\par
@@ -105,10 +170,14 @@
 \caption{\small{鸿蒙系统特性}}
 \end{figure}
 OpenHarmony实现万物互联的特有技术就是分布式软总线，分布式软总线技术将使终端设备打破硬件边界，让用户实现跨终端 无缝协同体验。以前硬件设备之间的连接及数据传输依靠的是硬总线，即物理导线。随着无线技术的发展，设备互联开始无线化。但是用户通常需要手动连接，存在连接时间长，连接及数据传输不稳定等问题。华为研发的分布式软总线技术在这一问题上进了改进，简化无线通讯协议，实现异构融合网络，使得无线连接性能无限逼近总线能力。在使用上，用户不再需要手动连接，设备之间能达 到自发现、自组网，端到端时延在 10 毫秒以内。连接建立之后，速度、延迟、稳定性都有改善，用户体验得到极大优化。在开发上，分布式软总线技术使得开发更为便捷，开发者开发多设备联动的应用时，无需关注组网方式与底层协议， 使开发者可以一次开发，多端部署。
-\pic_normal{0.7}{./pic/12}{分布式软总线简化无线通讯协议}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\columnwidth, height=0.5\textwidth]{./pic/12}
+\caption{\small{鸿蒙系统特性}}
+\end{figure}
 两年多来快节奏的版本迭代，OpenHarmony系统能力、开发工具逐步完善，具备了满足大量产业需求的技术优势。虽然OpenHarmony距离真正的大规模商业落地还有一段路要走，但如今已踏出重要几步。OpenHarmony正在从聚光灯下出发，成为真正的基础软件，真正的开源操作系统。
 \pic_normal{0.9}{./pic/13}{Openharmony支持设备演进历史}
-penHarmony目前只具有基础的一些能力，但在隐私保护等方面还有所欠缺，且由于操作系统过新，目前相关领域工作较少。用户在上网过程中，身份信息泄露的途径有很多，最为常见的就是手机中的APP在后台擅自调用敏感权限来获取我们的个人信息。其中危害最大的莫过于软件偷偷打开摄像头对用户进行拍照或打开录音机对用户进行监听等。对此OpenHarmony还未在安全子系统中做任何的安全监控处理。
+OpenHarmony目前只具有基础的一些能力，但在隐私保护等方面还有所欠缺，且由于操作系统过新，目前相关领域工作较少。用户在上网过程中，身份信息泄露的途径有很多，最为常见的就是手机中的APP在后台擅自调用敏感权限来获取我们的个人信息。其中危害最大的莫过于软件偷偷打开摄像头对用户进行拍照或打开录音机对用户进行监听等。对此OpenHarmony还未在安全子系统中做任何的安全监控处理。
 
 
 同时随着传统的内核跟踪工具的成熟，其各自自身的一些缺陷也渐渐成为了性能的瓶颈，同时部分跟踪工具还会影响内核的稳定性，这些问题亟需一项新技术来解决。也因此诞生了eBPF，eBPF的出现解决了上述两个主要问题，其监测效率高且不影响内核稳定性。但是由于不同内核版本之间的差别，会导致某个内核版本上编写的eBPF程序没法在另一个内核版本上完美运行。
@@ -157,15 +226,13 @@ IAT Hook技术技术虽然能够挂钩几乎所有静态调用的API函数，但
 \textbf{ptrace API调试技术Hook：}ptrace是很多Linux平台下调试器实现的基础，包括syscall跟踪程序strace。
 
 
-使用ptrace的总体思路为
-\begin{enumerate}
-  \item ptrace attach目标进程。
-        \item 保存rip
-        \item 控制跳转到mmap分配一段rwx内存
-        \item 将一段机器码copy进去
-        \item 控制跳转到机器码（可以以bin文件的形式）
-        \item 恢复执行。
-\end{enumerate}
+使用ptrace的总体思路为\par
+1. ptrace attach 目标进程。\par
+2. 保存 rip\par
+3. 控制跳转到 mmap 分配一段 rwx 内存\par
+4. 将一段机器码 copy 进去\par
+5. 控制跳转到机器码(可以以 bin 文件的形式)\par
+6. 恢复执行。
 
 
 这种方式实现的跟踪工具有很多的限制，同时性能也不够优秀。
@@ -238,9 +305,10 @@ KAL              & 鸿蒙的内核抽象层（KAL，Kernel Abstract Layer）通�
 HAP              & HarmonyOS应用发布形态为APP Pack（Application Package，简称APP），它是由一个或多个HAP（HarmonyOS Ability Package）包以及描述APP Pack属性的pack.info文件组成。HAP是Ability的部署包，HarmonyOS应用代码围绕Ability组件展开，它是由一个或多个Ability组成。Ability分为两种类型：FA（Feature Ability）和PA（Particle Ability）。FA/PA是应用的基本组成单元，能够实现特定的业务功能。FA有UI界面，而PA无UI界面。 \\
 \hline
 
-  \end{longtable}
+\end{longtable}
 
 
+\newpage
 \section{作品设计与实现}
 \subsection{系统界面和功能}
 \subsubsection{前端界面介绍}
@@ -253,12 +321,12 @@ HAP              & HarmonyOS应用发布形态为APP Pack（Application Package�
   \item 首页
 
 进入到透镜应用后，应用首页如下图所示，除了上部分的logo外，下半部分以小卡片的形式展示了各个隐私行为的授权情况，通过首页用户可以直观地了解应用获取隐私行为授权的情况。
-        \pic_normal{0.3}{./pic/216}{首页}
+        \pic_normal{0.5}{./pic/216}{首页}
 
   \item 白名单
 
 在首页点击tab栏切换，或者直接右滑就可进入白名单页面，在此页面用户可以将信任的应用添加到白名单中，透镜将不会在这些应用使用隐私权限时通知用户，减少不必要的通知给用户带来的繁琐体验感，但这些应用的隐私行为还是会被记录下来，可以有效追溯。
-\pic_normal{0.3}{./pic/217}{白名单}
+\pic_normal{0.5}{./pic/217}{白名单}
   \item 日志
 
 在日志界面会记录所有(包括白名单内应用)使用了隐私权的日志，保证每一个应用的隐私行为都在透镜的监控之下。
@@ -266,12 +334,17 @@ HAP              & HarmonyOS应用发布形态为APP Pack（Application Package�
   \item 后台通知
 
 当其它应用发生隐私行为时，透镜会根据用户的设置显示系统通知告知用户该隐私行为的发生。
-        \pic_normal{0.4}{./pic/218}{后台通知}
+        \pic_normal{0.5}{./pic/218}{后台通知}
 \end{enumerate}
+\subsubsection{系统开发环境}
+操作系统：Linux 20.04、OpenHarmony 3.1\par
+开发工具：DevEco Studio 3.0.0.9、gcc 11.0、Vim、cmake、Qt 5.15.2\par
+开发语言：C、eTS
 \subsection{系统架构}
 \subsubsection{系统整体结构图}
 系统整体架构图如下所示：
 \pic_normal{1}{./pic/21}{系统整体结构图}
+
 
 我们的系统主要按照三层逻辑结构进行组织，从上到下依次为应用层、框架层以及底部的内核层。而我们的工作主要分为前端与后端两块，并分别立足于应用层和框架层，并实现与内核层的交互。\par
 在应用层部分，我们主要基于鸿蒙OS——OpenHarmony，利用建立于JS引擎上的ACE UI框架，编写GUI界面，构建我们的前端应用程序。\par
@@ -332,12 +405,12 @@ NAPI通过注册函数进行模块的注册，其接受一个全局变量参数�
 
 
         区别如下图所示：
-        \pic_normal{0.8}{./pic/25}{NAPI的不同接口区别}
+        \pic_normal{0.8}{./pic/40}{NAPI的不同接口区别}
         NAPI有关的接口信息可以在Node.js官方文档中查看，在这里我们主要使用C接口在实现过程中主要使用的接口如下
 
 \end{enumerate}
 
-\subsection{基于Libbpf的hook模型}
+\subsection{基于Libbpf的内核级隐私监测hook模型}
 \subsubsection{eBPF的工作原理}
 eBPF 程序在事件触发时由内核运行，所以可以被看作是一种函数挂钩或事件驱动的编程形式。事件可由 kprobes/uprobes、tracepoints、dtrace probes、socket 等产生。这里选用tracepoints，主要原因在于。这允许在内核和用户进程的指令中钩住（hook）和检查任何函数的内存、拦截文件操作、检查特定的网络数据包等等。
 
@@ -345,98 +418,28 @@ eBPF 程序在事件触发时由内核运行，所以可以被看作是一种函
 事件触发了附加的 eBPF 程序的执行，后续可以将信息保存至 map 和环形缓冲区（ringbuffer）或调用一些特定 API 定义的内核函数的子集。一个 eBPF 程序可以链接到多个事件，不同的 eBPF 程序也可以访问相同的 map 以共享数据。一个被称为 “program array” 的特殊读/写 map 存储了对通过 bpf() 系统调用加载的其他 eBPF 程序的引用，在该 map 中成功的查找则会触发一个跳转，而且并不返回到原来的 eBPF 程序。这种 eBPF 嵌套也有限制，以避免无限的递归循环。
 
 
-运行 eBPF 程序的步骤：
-\begin{enumerate}
-  \item 用户空间将字节码和程序类型一起发送到内核，程序类型决定了可以访问的内核区域（主要是 BPF 辅助函数的各种子集）。
-  \item 内核在字节码上运行验证器，以确保程序可以安全运行（kernel/bpf/verifier.c）。
-  \item 内核将字节码编译为本地代码，并将其插入（或附加到）指定的代码位置。（如果启用了 JIT 功能，字节码编译为本地代码）。
-  \item 插入的代码将数据写入环形缓冲区或通用键值 map。
-  \item 用户空间从共享 map 或环形缓冲区中读取结果值。
-\end{enumerate}\par
+运行 eBPF 程序的步骤：\par
+1. 用户空间将字节码和程序类型一起发送到内核，程序类型决定了可以访问\par
+的内核区域(主要是 BPF 辅助函数的各种子集)。\par
+2. 内核在字节码上运行验证器，以确保程序可以安全运行(kernel/bpf/veri-\par
+fier.c)。\par
+3. 内核将字节码编译为本地代码，并将其插入(或附加到)指定的代码位\par
+置。(如果启用了 JIT 功能，字节码编译为本地代码)。\par
+4. 插入的代码将数据写入环形缓冲区或通用键值 map。\par
+5. 用户空间从共享 map 或环形缓冲区中读取结果值。\par
 map 和环形缓冲区结构是由内核管理的（就像管道和 FIFO 一样），独立于挂载的 eBPF 或访问它们的用户程序。对 map 和环形缓冲区结构的访问是异步的，通过文件描述符和引用计数实现，可确保只要有至少一个程序还在访问，结构就能够存在。加载的 JIT 后代码通常在加载其的用户进程终止时被删除，尽管在某些情况下，它仍然可以在加载进程的生命期之后继续存在。
 
 
 为了方便编写 eBPF 程序和避免进行原始的 bpf()系统调用，内核提供了方便的 libbpf 库，包含系统调用函数包装器，如bpf\_load\_program(用于将BPF程序挂载到内核中) 和结构定义（如 bpf\_map）
 
-\subsubsection{基于eBPF的监测框架}
 目前eBPF的各种监测工具很多，但是对于不怎么接触eBPF的开发者来说，还没有一个比较容易使用的监测设备使用的接口。我们构建了一个对于设备的监测框架，利用eBPF在底层hook对设备文件的读写操作。在hook设备文件的跟踪程序类型上我们选择比较稳定的tracepoints作为我们eBPF程序的程序类型。tracepoints 是内核开发人员维护的跟踪点，能够提供稳定的 ABI 接口，一般不会因为内核版本的变化而导致跟踪失效。获取到内核中的数据后，对数据进行过滤，去重，筛选，最终给出使用设备的进程相关数据。向外暴露获取设备使用数据的接口，开发人员只需要通过接口读取数据即可按照自己的意愿进行处理。这样屏蔽了eBPF的底层实现，在充分利用eBPF的高效率的基础上提供了极大的可扩展性，大大降低了基于eBPF开发监测设备使用等相关测试工具的开发难度。
 
-\subsection{基于F3N的行为分析检测弹性机制}
-\subsubsection{机制概述}
-在监测应用使用设备的过程中，若每当有应用使用设备便弹窗预警，这无疑会影响用户的体验。因此需要对应用的各项行为进行恶意倾向、安全性分析，以实现自动化的管理与防护。\par
-我们的作品将应用恶意或正常使用设备的行为特征作为训练数据，通过FNN-NEW神经网络训练应用行为分析模型；同时在用户许可的情况下利用高性能的Sidecar模式管理网络交互，将这部分数据共享给服务端做进一步的分析，从而不断完善模型，实现自适应的性能提升。
-
-
-\subsubsection{优化的Sidecar模式交互}
-Sidecar模式是一种将应用功能从应用本身剥离出来作为单独进程的方式。来自单个服务的所有传入和传出网络流量均通过Sidecar代理，完成微服务之间的流量管理、遥测数据收集以及策略执行等。从某种意义上来说，服务对于网络是无感知的，只知道所附加的是Sidecar代理。所以其工作的本质就是将网络依赖抽象成了Sidecar。\par
-而作品的客户端运行在鸿蒙系统之上，我们对Sidecar模式进行了更进一步的优化——我们构建一个分布式跟踪和执行模块作为守护程序集，策略会跟随应用程序的生命周期，而不是永久地运行在基础设施上。这点与Sidecar模式相似，但我们基于高性能的Libbpf实现，不需要将能力重定向到Sidecar中，从而降低系统开销。
-\pic_normal{0.9}{./pic/229}{Sidecar设计模式}
-在Service Mesh中，包含有Data Plane和Control Plane两个平面。\par
-Data Plane的作用是处理网格内服务间的通信，并完成服务发现、负载均衡、流量管理、健康检查等功能；数据平面的作用是处理网格内服务之间的通信，并负责实现服务发现、负载平衡、流量管理、健康检查等功能。\par
-Control Plane的作用是管理和配置Sidecar来执行策略并收集遥测数据。
-\pic_normal{0.8}{./pic/230}{基于libbpf改进的微系统架构图}
-这两种平面的结合，再加上Libbpf的高性能，使得我们作品的微系统架构具备更好的兼容性，更低的服务架构复杂性，以及更高的服务发现、流量管理、与负载均衡性能。
-
-\subsubsection{自适应的弹性防护}
-基于如上所述的交互模式，我们实现了一个运行于鸿蒙系统上的结合智能策略、集中管理、自动发现于一体的完整监测防护系统，能够对用户行为进行自动的分析，并使用弹性补丁，来及时限制应用的权限和能力，以防止恶意攻击行为。\par
-这种弹性的防护机制类似于在应用程序周围放置一个防护罩，将漏洞限制在本地防护罩内，并且不允许传播。\par
-凭借与服务器定时的连接与更新，在本地运行的所有策略都可以实现自动发现与自我纠正。针对于应用越级行为的解决方案，我们提出的策略是，对于应用App的行为进行实时监控，如果一旦根据模型分析结果发现其行为的恶意倾向大于设定阈值（被认定为Compromised），就会将其锁定并限制权限，直到之后分析结果小于解锁的阈值（比如预警阈值的一半），再重新恢复该应用App的功能。当然用户也可以操作手动解锁，但并不推荐使用。\par
-这种策略具备自动化特性，可以消除用户人为操作错误等因素，这将大大提高了我们作品应用的便捷性、准确性、安全性。通过人工智能的相关方式，利用多用户网络构建的应用分析数据，建立行为模型，持续监控系统设备、网络行为，并在持续运行的过程中不断学习，提升模型准确性，最后搭建完成一种能够自适应变化提升的弹性防护机制。
-\pic_normal{0.8}{./pic/27}{对应用的权限限制}
-为了提高应用行为分析的效率，我们会在本地保存模型数据，该模型版本从云端下载，保持定时的更新，而更新的频率可以为用户自定义设置。同时本地实时的处理过的数据，在用户授权允许的情况下，也会定时地传送给服务器，以供模型的训练与自适应提升。
-
-\pic_normal{0.6}{./pic/26}{本地模型与云服务器的交互}
-
-\subsubsection{适配应用行为的FNN模型}
-\paragraph{行为特征数据}
-
-经过利弊权衡，我们选择的分析数据包括：应用获取数据的流向、发送的网络包特征、调用设备频率、后台占用率等，通过归一化的方式构建向量，采用无监督的聚类学习来进行模型训练。
-\pic_normal{1}{./pic/231}{行为特征的数据格式}
-之所以没有先采用有监督学习模型的原因是数据的标注难度比较大，且当前该领域没有合适的、成型的数据集。在后续的工作中，我们会尝试自己采集数据、标注数据来训练精度更高的模型。
-\paragraph{神经网络模型}
-
-选择的是FNN模型，它在提出之时是用于进行用户的点击行为预测的，这里我们通过调整，使其可以实现预测应用行为恶意倾向的作用，我们称之为F3N（FNN NEW）。\par
-目前大部分预测的线性模型，如逻辑回归，朴素贝叶斯，FTRL逻辑回归和贝叶斯逻辑回归等，都是基于使用one-hot编码的大量稀疏特征，模型简单有效，但是由于无法学习到特征之间的相互关系，性能较差。而非线性模型可与其相比，可以通过特征间的组合提高模型的能力，比如FMs将二值化的特征映射成连续的低维空间，通过内积获取特征间的相互关系。然而，这些方法并不能利用所有可能的组合。此外，许多模型仍然需要依靠手工进行特征工程，来决定如何进行特征的组合。另一个问题是，一些已有的模型在对复杂数据间的潜在的模式上的表达能力是非常有限的，这也影响到它们的泛化能力。这也是为什么我们选择了FNN作为我们模型的前身，经过改进和适配形成新的模型F3N。\par
-在广告预测中，定位技术都依赖于预测是否特定的用户认为这广告是相关的，给出用户在特定的场景中点击的概率，而我们的F3N可以计算出应用程序在一个场景中行为恶意的倾向性，也就是其被预测为恶意的期望值。\par
-在非监督的训练中，神经网络可以从原始的特征中学习到高维的特征表示，这个能力也可以用在应用行为分析上。我们模型的输入特征如前所述，是不同领域的并且离散的类别特征，包括后台占用率、网路数据包、数据流向等等，并且特征之间的相互依赖是未知的，这也对我们的模型提出了挑战。
-\pic_normal{1}{./pic/28}{FNN模型结构图}
-输出层，模型的输出是一个实数y(0,1)作为预测的概率，即应用在指定上下文中行为是恶意的概率。
-\begin{equation}
-\hat{y}=\operatorname{sigmoid}\left(\boldsymbol{W}_{3} \boldsymbol{l}_{2}+b_{3}\right)
-\end{equation}
-l2层
-\begin{equation}
-\boldsymbol{l}_{2}=\tanh \left(\boldsymbol{W}_{2} \boldsymbol{l}_{1}+\boldsymbol{b}_{2}\right)
-\end{equation}
-l1层
-\begin{equation}
-\boldsymbol{l}_{1}=\tanh \left(\boldsymbol{W}_{1} \boldsymbol{z}+\boldsymbol{b}_{1}\right)
-\end{equation}
-Dense层
-\begin{equation}
-\boldsymbol{z}_{i}=\boldsymbol{W}_{0}^{i} \cdot \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right]=\left(w_{i}, v_{i}^{1}, v_{i}^{2}, \ldots, v_{i}^{K}\right)
-\end{equation}
-
-其中start和end是第个特征域的起止下标，w和x在上面已经描述过了。所有的权重w都是通过偏置项wi和向量vi分别初始化。通过这种方式，FNN中的第一层的参数向量z就是通过预训练好的FM模型来初始化的。\par
-使用预训练的FM来初始化FNN模型的第一层参数可以有效地学习特征表示，并且绕开了高维二值输入带来的计算复杂度高问题。更进一步，隐含层的权重（除了FM层）可以通过预训练的RBM来进行初始化。FM的权重可以通过SGD来进行更新，我们只需要更新那些不为0的单元，这样可以减少大量的计算。通过预训练FM层和其他的层进行初始化之后，再通过监督学习的方法进行微调，使用交叉熵的损失函数：
-\begin{equation}
-L(y, \hat{y})=-y \log \hat{y}-(1-y) \log (1-\hat{y})
-\end{equation}
-使用反向传播的链式法则，FNN模型(包含FM)的权重可以被高效地更新，举个例子，FM层的权重可以通过下述公式来进行更新：
-\begin{equation}
-\begin{aligned}
-\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{W}_{0}^{i}} \&=\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \frac{\partial \boldsymbol{z}_{i}}{\partial \boldsymbol{W}_{0}^{i}}=\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right] \\
-\boldsymbol{W}_{0}^{i} \& \leftarrow \boldsymbol{W}_{0}^{i}-\eta \cdot \frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right] .
-\end{aligned}
-\end{equation}
-
-\subsection{系统实现}
-\subsubsection{基于libbpf的内核级隐私检测Hook模块}
+\subsubsection{隐私模块}
 \paragraph{介绍}
-这一部分是我们底层应用架构的核心，涉及系统中框架层与内核层的交互。实现主要依托于Libbpf，分为.c和.bpf.c两个文件，分别用于\important{启动检测}、与内核进行交互\important{获取内核中得到的数据}，以及对得到的数据进行\important{过滤、去重、统计、分类、函数封装}等处理。最后这些处理好的数据与函数还会再向上传递，以供上层NAPI以及前端的使用。
+
+这一部分是我们底层应用架构的核心，涉及系统中框架层与内核层的交互。实现主要依托于Libbpf，分为.c和.bpf.c两个文件，分别用于\important{启动检测}、与内核进行交互\important{获取内核中得到的数据}，以及对得到的数据进行\important{过滤、去重、统计、分类} \important{、函数封装}等处理。最后这些处理好的数据与函数还会再向上传递，以供上层NAPI以及前端的使用。
 \pic_normal{0.8}{./pic/29}{hook模块结构图}
 
-\newgeometry{bottom=0.5cm}
 系统内核与设备的交互是依赖于\important{设备驱动程序}的，而系统中绝大部分设备的驱动程序都在\important{device目录}下，所以我们可以利用这一点，通过监测程序访问驱动文件的行为，来监测其对设备的使用。
 
 
@@ -446,9 +449,7 @@ L(y, \hat{y})=-y \log \hat{y}-(1-y) \log (1-\hat{y})
 本质来说我们撰写的是一个模块，其对应的功能是监测鸿蒙OS中应用进程对设备的使用情况，当然之后也可以对功能进行拓展，撰写其它的模块实现更多更强大的功能，这些模块都可以被很方便地置于我们所自主构建的应用框架当中。所以模块的\important{可拓展性与可移植性}是本项目的突出特色之一。
 
 \paragraph{数据处理}
-这部分首先要设置strict模式，之后加载并检验BPF程序，添加tracepoint插桩点，设置ring缓冲区.
-
-
+这部分首先要设置strict模式，之后加载并检验BPF程序，添加tracepoint插桩点，设置ring缓冲区.\par
 之后将我们的程序handle附着到hook锚点上，从而使得BPF程序能够相应，在其拥有的上下文context中回应系统调用、执行我们的代码，从而获取与设备驱动程序文件相关的内核数据。
 
 
@@ -495,15 +496,12 @@ L(y, \hat{y})=-y \log \hat{y}-(1-y) \log (1-\hat{y})
   /dev/snd/pcmC2D1&写&音响\\
   \hline
 \end{tabular}
-\caption{其他平台上的隐私保护软件}
+\caption{文件名及设备对应关系}
 \end{table}
-\restoregeometry
   \item 去重
 
 
-去重是在过滤之后（从运行逻辑上来说也可以放在过滤之前），因为libbpf监测的灵敏性，短时间内可以获得到大量的系统内核级行为以及数据，同时也就意味着大量的重复，所以需要进行去重处理。
-
-
+去重是在过滤之后（从运行逻辑上来说也可以放在过滤之前），因为libbpf监测的灵敏性，短时间内可以获得到大量的系统内核级行为以及数据，同时也就意味着大量的重复，所以需要进行去重处理。\par
 我们的去重标准比较简单，基本就是两点，第一点是连续的完全相同的行为记录，只保留一条；第二点是在第一点去重之后，行为分析结果相同的两条，如果时间相隔太近，也依然只保存一条，这是因为从用户需求的角度来说，用户是不需要短时间内重复的提示的。
 
   \item 统计与分类
@@ -709,6 +707,128 @@ void video_conduct(const struct event *e) {
   }
 }
 \end{lstlisting}
+\subsection{基于F3N的行为分析检测弹性机制}
+\subsubsection{机制概述}
+在监测应用使用设备的过程中，若每当有应用使用设备便弹窗预警，这无疑会影响用户的体验。因此需要对应用的各项行为进行恶意倾向、安全性分析，以实现自动化的管理与防护。\par
+我们的作品将应用恶意或正常使用设备的行为特征作为训练数据，通过FNN-NEW神经网络训练应用行为分析模型；同时在用户许可的情况下利用高性能的Sidecar模式管理网络交互，将这部分数据共享给服务端做进一步的分析，从而不断完善模型，实现自适应的性能提升。
+
+
+\subsubsection{优化的Sidecar模式交互}
+Sidecar模式是一种将应用功能从应用本身剥离出来作为单独进程的方式。来自单个服务的所有传入和传出网络流量均通过Sidecar代理，完成微服务之间的流量管理、遥测数据收集以及策略执行等。从某种意义上来说，服务对于网络是无感知的，只知道所附加的是Sidecar代理。所以其工作的本质就是将网络依赖抽象成了Sidecar。\par
+而作品的客户端运行在鸿蒙系统之上，我们对Sidecar模式进行了更进一步的优化——我们构建一个分布式跟踪和执行模块作为守护程序集，策略会跟随应用程序的生命周期，而不是永久地运行在基础设施上。这点与Sidecar模式相似，但我们基于高性能的Libbpf实现，不需要将能力重定向到Sidecar中，从而降低系统开销。
+\pic_normal{0.9}{./pic/229}{Sidecar设计模式}
+在Service Mesh中，包含有Data Plane和Control Plane两个平面。\par
+Data Plane的作用是处理网格内服务间的通信，并完成服务发现、负载均衡、流量管理、健康检查等功能；数据平面的作用是处理网格内服务之间的通信，并负责实现服务发现、负载平衡、流量管理、健康检查等功能。\par
+Control Plane的作用是管理和配置Sidecar来执行策略并收集遥测数据。
+\pic_normal{0.8}{./pic/230}{基于libbpf改进的微系统架构图}
+这两种平面的结合，再加上Libbpf的高性能，使得我们作品的微系统架构具备更好的兼容性，更低的服务架构复杂性，以及更高的服务发现、流量管理、与负载均衡性能。
+
+\subsubsection{自适应的弹性防护}
+基于如上所述的交互模式，我们实现了一个运行于鸿蒙系统上的结合智能策略、集中管理、自动发现于一体的完整监测防护系统，能够对用户行为进行自动的分析，并使用弹性补丁，来及时限制应用的权限和能力，以防止恶意攻击行为。\par
+这种弹性的防护机制类似于在应用程序周围放置一个防护罩，将漏洞限制在本地防护罩内，并且不允许传播。\par
+凭借与服务器定时的连接与更新，在本地运行的所有策略都可以实现自动发现与自我纠正。针对于应用越级行为的解决方案，我们提出的策略是，对于应用App的行为进行实时监控，如果一旦根据模型分析结果发现其行为的恶意倾向大于设定阈值（被认定为Compromised），就会将其锁定并限制权限，直到之后分析结果小于解锁的阈值（比如预警阈值的一半），再重新恢复该应用App的功能。当然用户也可以操作手动解锁，但并不推荐使用。\par
+这种策略具备自动化特性，可以消除用户人为操作错误等因素，这将大大提高了我们作品应用的便捷性、准确性、安全性。通过人工智能的相关方式，利用多用户网络构建的应用分析数据，建立行为模型，持续监控系统设备、网络行为，并在持续运行的过程中不断学习，提升模型准确性，最后搭建完成一种能够自适应变化提升的弹性防护机制。
+\pic_normal{0.8}{./pic/27}{对应用的权限限制}
+为了提高应用行为分析的效率，我们会在本地保存模型数据，该模型版本从云端下载，保持定时的更新，而更新的频率可以为用户自定义设置。同时本地实时的处理过的数据，在用户授权允许的情况下，也会定时地传送给服务器，以供模型的训练与自适应提升。
+
+\pic_normal{0.6}{./pic/26}{本地模型与云服务器的交互}
+
+\subsubsection{适配应用行为的FNN模型}
+\paragraph{行为特征数据}
+
+经过利弊权衡，我们选择的分析数据包括：应用获取数据的流向、发送的网络包特征、调用设备频率、后台占用率等，通过归一化的方式构建向量，采用无监督的聚类学习来进行模型训练。
+\pic_normal{1}{./pic/231}{行为特征的数据格式}
+之所以没有先采用有监督学习模型的原因是数据的标注难度比较大，且当前该领域没有合适的、成型的数据集。在后续的工作中，我们会尝试自己采集数据、标注数据来训练精度更高的模型。
+\paragraph{神经网络模型}
+
+选择的是FNN模型，它在提出之时是用于进行用户的点击行为预测的，这里我们通过调整，使其可以实现预测应用行为恶意倾向的作用，我们称之为F3N（FNN NEW）。\par
+目前大部分预测的线性模型，如逻辑回归，朴素贝叶斯，FTRL逻辑回归和贝叶斯逻辑回归等，都是基于使用one-hot编码的大量稀疏特征，模型简单有效，但是由于无法学习到特征之间的相互关系，性能较差。而非线性模型可与其相比，可以通过特征间的组合提高模型的能力，比如FMs将二值化的特征映射成连续的低维空间，通过内积获取特征间的相互关系。然而，这些方法并不能利用所有可能的组合。此外，许多模型仍然需要依靠手工进行特征工程，来决定如何进行特征的组合。另一个问题是，一些已有的模型在对复杂数据间的潜在的模式上的表达能力是非常有限的，这也影响到它们的泛化能力。这也是为什么我们选择了FNN作为我们模型的前身，经过改进和适配形成新的模型F3N。\par
+在广告预测中，定位技术都依赖于预测是否特定的用户认为这广告是相关的，给出用户在特定的场景中点击的概率，而我们的F3N可以计算出应用程序在一个场景中行为恶意的倾向性，也就是其被预测为恶意的期望值。\par
+在非监督的训练中，神经网络可以从原始的特征中学习到高维的特征表示，这个能力也可以用在应用行为分析上。我们模型的输入特征如前所述，是不同领域的并且离散的类别特征，包括后台占用率、网路数据包、数据流向等等，并且特征之间的相互依赖是未知的，这也对我们的模型提出了挑战。
+\pic_normal{1}{./pic/28}{FNN模型结构图}
+输出层，模型的输出是一个实数y(0,1)作为预测的概率，即应用在指定上下文中行为是恶意的概率。
+\begin{equation}
+\hat{y}=\operatorname{sigmoid}\left(\boldsymbol{W}_{3} \boldsymbol{l}_{2}+b_{3}\right)
+\end{equation}
+l2层
+\begin{equation}
+\boldsymbol{l}_{2}=\tanh \left(\boldsymbol{W}_{2} \boldsymbol{l}_{1}+\boldsymbol{b}_{2}\right)
+\end{equation}
+l1层
+\begin{equation}
+\boldsymbol{l}_{1}=\tanh \left(\boldsymbol{W}_{1} \boldsymbol{z}+\boldsymbol{b}_{1}\right)
+\end{equation}
+Dense层
+\begin{equation}
+\boldsymbol{z}_{i}=\boldsymbol{W}_{0}^{i} \cdot \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right]=\left(w_{i}, v_{i}^{1}, v_{i}^{2}, \ldots, v_{i}^{K}\right)
+\end{equation}
+
+其中start和end是第个特征域的起止下标，w和x在上面已经描述过了。所有的权重w都是通过偏置项wi和向量vi分别初始化。通过这种方式，FNN中的第一层的参数向量z就是通过预训练好的FM模型来初始化的。\par
+使用预训练的FM来初始化FNN模型的第一层参数可以有效地学习特征表示，并且绕开了高维二值输入带来的计算复杂度高问题。更进一步，隐含层的权重（除了FM层）可以通过预训练的RBM来进行初始化。FM的权重可以通过SGD来进行更新，我们只需要更新那些不为0的单元，这样可以减少大量的计算。通过预训练FM层和其他的层进行初始化之后，再通过监督学习的方法进行微调，使用交叉熵的损失函数：
+\begin{equation}
+L(y, \hat{y})=-y \log \hat{y}-(1-y) \log (1-\hat{y})
+\end{equation}
+使用反向传播的链式法则，FNN模型(包含FM)的权重可以被高效地更新，举个例子，FM层的权重可以通过下述公式来进行更新：
+\begin{equation}
+\begin{aligned}
+\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{W}_{0}^{i}} \&=\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \frac{\partial \boldsymbol{z}_{i}}{\partial \boldsymbol{W}_{0}^{i}}=\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right] \\
+\boldsymbol{W}_{0}^{i} \& \leftarrow \boldsymbol{W}_{0}^{i}-\eta \cdot \frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right] .
+\end{aligned}
+\end{equation}
+基于输入$\boldsymbol{x}\left[\right. start _{i}: end \left._{i}\right]$中大多数元素都为0这样一个事实，我们可以通过只更新那些非零的权重来加快fine-tuning。\par
+\subsubsection{代码部分}
+线性层：
+%\pic_normal{1}{}
+\begin{lstlisting}
+  # FNN的线性部分，对应 ∑WiXi
+        self.embedding_layers_1 = nn.ModuleList([
+            nn.Embedding(num_embeddings=feat_dim, embedding_dim=1)
+                for feat_dim in sparse_features_cols
+        ])
+\end{lstlisting}
+embedding层：
+\begin{lstlisting}
+  # FNN的Interaction部分，对应∑∑<Vi,Vj>XiXj
+        self.embedding_layers_2 = nn.ModuleList([
+            nn.Embedding(num_embeddings=feat_dim, embedding_dim=config['embed_dim'])
+                for feat_dim in sparse_features_cols
+        ])
+\end{lstlisting}
+DNN层：
+\begin{lstlisting}
+  # FNN的DNN部分
+        self.hidden_layers = [self.num_dense_feature + self.num_sparse_feature*(config['embed_dim']+1)] + config['dnn_hidden_units']
+        self.dnn_layers = nn.ModuleList([
+            nn.Linear(in_features=layer[0], out_features=layer[1])\
+                for layer in list(zip(self.hidden_layers[:-1], self.hidden_layers[1:]))
+        ])
+        self.dnn_linear = nn.Linear(self.hidden_layers[-1], 1, bias=False)
+\end{lstlisting}
+前向传播策略：
+\begin{lstlisting}
+  # 先区分出稀疏特征和稠密特征，这里是按照列来划分的，即所有的行都要进行筛选
+        dense_input, sparse_inputs = x[:, :self.num_dense_feature], x[:, self.num_dense_feature:]
+        sparse_inputs = sparse_inputs.long()
+
+        # 求出线性部分
+        linear_logit = [self.embedding_layers_1[i](sparse_inputs[:, i]) for i in range(sparse_inputs.shape[1])]
+        linear_logit = torch.cat(linear_logit, axis=-1)
+
+        # 求出稀疏特征的embedding向量
+        sparse_embeds = [self.embedding_layers_2[i](sparse_inputs[:, i]) for i in range(sparse_inputs.shape[1])]
+        sparse_embeds = torch.cat(sparse_embeds, axis=-1)
+
+        dnn_input = torch.cat((dense_input, linear_logit, sparse_embeds), dim=-1)
+
+        # DNN 层
+        dnn_output = dnn_input
+        for dnn in self.dnn_layers:
+            dnn_output = dnn(dnn_output)
+            dnn_output = torch.tanh(dnn_output)
+        dnn_logit = self.dnn_linear(dnn_output)
+\end{lstlisting}
+
+\subsection{系统实现}
 
 \subsubsection{基于方舟开发框架的前端设计}
 \paragraph{方舟开发框架概述(ArkUI)}
@@ -779,6 +899,7 @@ void video_conduct(const struct event *e) {
 测试机运行Linux环境。功能测试情况下，测试机运行多种常见的Linux摄像头、麦克风应用，开启用户隐私行为。性能测试情况下，测试机对比“透镜”隐私检测系统与其他传统应用如top、Dbus Daemon的CPU、内存占用率等数据。测试环境软硬件配置信息如表所示：
 
 \begin{table}
+  \centering
 \begin{tabular}{|l|l|l|l|}
   \hline
   \rowcolor{blue!50} 名称&CPU&内存&Linux内核版本\\
@@ -786,7 +907,7 @@ void video_conduct(const struct event *e) {
   测试机&4核&1GB&5.13.0-40-generic\\
   \hline
 \end{tabular}
-\caption{其他平台上的隐私保护软件}
+\caption{测试环境}
 \end{table}
 
 \subsection{功能测试}
@@ -796,7 +917,7 @@ void video_conduct(const struct event *e) {
   \hline
   \rowcolor{blue!50}应用名称&调用设备&应用功能\\
   \hline
-Ffmpeg&摄像头&FFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序，功能包括视频采集功能、视频格式转换、视频抓图、给视频加水印等。\\
+FFmpeg&摄像头&FFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序，功能包括视频采集功能、视频格式转换、视频抓图、给视频加水印等。\\
 \hline
 Fswebcam&摄像头&fswebcam是一个小型轻量的摄像头应用程序。它可以从许多不同的来源捕获图像，并对捕获的图像执行简单的操作。图像可以保存为一个或多个 PNG 或 JPEG 文件。\\
 \hline
@@ -855,18 +976,18 @@ Dbus Daemon&D-Bus首先是一个库，它提供任意两个应用程序之间的
 
 \section{作品创新性与实用性}
 \subsection{创新性}
-
-本作品的创新性主要包括以下几个部分，分别是\uline{\textbf{系统特性、内核交互方式、}}\important{框架与模块属性优势}。
-
-
-首先系统特性方面，我们的作品是建立于鸿蒙OS——OpenHarmony上的，该系统为国产自研Linux内核系统，近几年才兴起火热。其系统新，故而也存在很多问题，比如资料匮乏、文件不完善、接口少、框架应用不足等。尤其是位于底层的隐私监测系统，\uline{此前未有研究人员在此方向尝试}；而且尽管其它系统平台有不少成熟的应用，但都\uline{不能简单地移植过来，不具备兼容性与可行性}。也正因如此，我们的作品应运而生。
+本作品的创新性主要包括以下几个部分，分别是\important{系统特性、内核交互方式、}\important{框架与模块属性优势}。
 
 
-其次内核交互方式上，我们所采用的是基于Libbpf的应用框架，libbpf相较于\uline{传统的BCC有着非常突出的优势}，包括内存占用少、编译更加方便快速等等。我们通过它，可以在内核中监测到大量的系统调用行为，并通过一系列数据处理最后获得我们想要监测的使用情况、隐私数据，上传给前端。
+\begin{enumerate}
 
+\item 系统特性方面，\textbf{“透镜”是一款主要面向鸿蒙系统的安全应用，这是目前国内研究领域的空白。}我们的作品是建立于鸿蒙OS——OpenHarmony上的，该系统为国产自研Linux内核系统，近几年才兴起火热。其系统新，故而也存在很多问题，比如资料匮乏、文件不完善、接口少、框架应用不足等。尤其是位于底层的隐私监测系统，此前未有研究人员在此方向尝试；而且尽管其它系统平台有不少成熟的应用，但都不能简单地移植过来，不具备兼容性与可行性。也正因如此，我们的作品应运而生，在一定程度上填补了鸿蒙系统这部分的空白，在未来也可以继续进行完善和补充，为我国鸿蒙系统的不断发展做出贡献。
 
-而我们的框架与属性优势主要体现在两点上，第一点我们的系统应用检测框架具有\important{可拓展性}，其不仅仅局限于我们当前实现了的隐私行为监测，之后还可以进行拓展扩充，通过在已有框架中添加模块的方式，监测其它诸如应用安装、后台权限等等更多的应用程序行为，从而实现更全面的安全性覆盖。第二点是我们的系统架构具有\important{可移植性}，这也是Libbpf的CO-RE理念核心所在，其编译一次便可以运行于任何地方，经过我们的测试，只需要简单修改上层接口，便可以很好地运行于其它系统，比如Linux与Android。
+\item 内核交互方式上，\textbf{“透镜”将内核的数据类型构建在内核，bpf程序只要依赖这个头文件就行，不需要安装内核头文件的包，实现了性能的提升和轻量级的目标}。我们所采用的是基于Libbpf的应用框架，libbpf相较于传统的BCC有着非常突出的优势，包括内存占用少、编译更加方便快速等等。我们通过它，可以在内核中监测到大量的系统调用行为，并通过一系列数据处理最后获得我们想要监测的使用情况、隐私数据，上传给前端。
+
+\item 我们的框架与属性优势主要体现在\textbf{“透镜”具有可拓展性和可移植性，这使得我们的应用框架中除了隐私行为监测模块还可以根据用户其他需求添加其他的系统监测功能，并且在多内核版本，多操作系统平台进行安装}。第一点我们的系统应用检测框架具有\textbf{可拓展性}，其不仅仅局限于我们当前实现了的隐私行为监测，之后还可以进行拓展扩充，通过在已有框架中添加模块的方式，监测其它诸如应用安装、后台权限等等更多的应用程序行为，从而实现更全面的安全性覆盖。第二点是我们的系统架构具有\textbf{可移植性}，这也是Libbpf的CO-RE理念核心所在，其编译一次便可以运行于任何地方，经过我们的测试，只需要简单修改上层接口，便可以很好地运行于其它系统，比如Linux与Android。
 \pic_normal{0.8}{./pic/31}{可移植性示意图}
+\end{enumerate}
 
 \subsection{实用性}
 本作品的实用性主要体现在以下四个方面：
