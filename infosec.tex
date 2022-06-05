@@ -417,7 +417,18 @@ Dense层
 \boldsymbol{z}_{i}=\boldsymbol{W}_{0}^{i} \cdot \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right]=\left(w_{i}, v_{i}^{1}, v_{i}^{2}, \ldots, v_{i}^{K}\right)
 \end{equation}
 
-其中start和end是第个特征域的起止下标，w和x在上面已经描述过了。所有的权重w都是通过偏置项wi和向量vi分别初始化。通过这种方式，FNN中的第一层的参数向量z就是通过预训练好的FM模型来初始化的。
+其中start和end是第个特征域的起止下标，w和x在上面已经描述过了。所有的权重w都是通过偏置项wi和向量vi分别初始化。通过这种方式，FNN中的第一层的参数向量z就是通过预训练好的FM模型来初始化的。\par
+使用预训练的FM来初始化FNN模型的第一层参数可以有效地学习特征表示，并且绕开了高维二值输入带来的计算复杂度高问题。更进一步，隐含层的权重（除了FM层）可以通过预训练的RBM来进行初始化。FM的权重可以通过SGD来进行更新，我们只需要更新那些不为0的单元，这样可以减少大量的计算。通过预训练FM层和其他的层进行初始化之后，再通过监督学习的方法进行微调，使用交叉熵的损失函数：
+\begin{equation}
+L(y, \hat{y})=-y \log \hat{y}-(1-y) \log (1-\hat{y})
+\end{equation}
+使用反向传播的链式法则，FNN模型(包含FM)的权重可以被高效地更新，举个例子，FM层的权重可以通过下述公式来进行更新：
+\begin{equation}
+\begin{aligned}
+\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{W}_{0}^{i}} \&=\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \frac{\partial \boldsymbol{z}_{i}}{\partial \boldsymbol{W}_{0}^{i}}=\frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right] \\
+\boldsymbol{W}_{0}^{i} \& \leftarrow \boldsymbol{W}_{0}^{i}-\eta \cdot \frac{\partial L(y, \hat{y})}{\partial \boldsymbol{z}_{i}} \boldsymbol{x}\left[\operatorname{start}_{i}: \operatorname{end}_{i}\right] .
+\end{aligned}
+\end{equation}
 
 \subsection{系统实现}
 \subsubsection{基于libbpf的内核级隐私检测Hook模块}
